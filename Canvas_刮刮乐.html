@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    details {
+      margin-top: 20px;
+      width: 300px;
+    }
+
+    details summary {
+      list-style: none;
+      cursor: pointer;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #gifInput {
+      margin-top: 20px;
+      padding: 12px;
+      font-size: 18px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      width: 300px;
+      transition: border-color 0.3s;
+    }
+
+    #gifInput:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    #refreshBtn:hover {
+      background-color: #1976D2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #addBtn:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #clearBtn:hover {
+      background-color: #d32f2f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #showBtn:hover {
+      background-color: #f57c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #f0f0f0;
+    }
+
+    #cvs {
+      max-width: 100%;
+      height: auto;
+      border: 4px solid #333;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #refreshBtn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    #addBtn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    #clearBtn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    #showBtn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    #refreshBtn:hover {
+      background-color: #45a049;
+    }
+
+    .Btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 25px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 25px;
+      cursor: pointer;
+      background-color: #a04545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="cvs"></canvas>
+  <details id="buttonAccordion">
+    <summary class="Btn" onclick="show=false">功能菜单</summary>
+    <button id="refreshBtn">重新抽取</button>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <input type="text" id="gifInput" placeholder="输入奖品名称">
+      <button id="addBtn" onclick="addGifsFromInput()">添加</button>
+    </div>
+    <button id="clearBtn" onclick="clearGifs()">清空</button>
+    <button id="showBtn" onclick="showDivText() ">显示可删除项</button>
+  </details>
+  <div id="deleteOptions"
+    style="position: fixed; height: 20vh; display: none; background-color: #f0f0f0; padding:0 20px; border: 2px solid rgba(0, 0, 0, 0.1); border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); right: 0; top: 0; overflow-y: auto;">
+  </div>
+
+</body>
+<script type="text/javascript">
+  //获取画布元素
+  var cvs = document.querySelector("#cvs");
+
+  //获取工具集
+  var cxt = cvs.getContext('2d');
+
+  //定义一个中奖信息的数组
+  var arrGifs = ['一等奖', '二等奖', '三等奖', '没中奖'];
+
+  var show = false;
+  function showDeleteOptions() {
+
+    const deleteOptionsDiv = document.getElementById('deleteOptions');
+    const showBtnDiv = document.getElementById('showBtn');
+    deleteOptionsDiv.innerHTML = '';
+    showBtnDiv.innerText = arrGifs.length ? (show ? '隐藏奖品' : '显示奖品') : '无刮刮乐奖品';
+    deleteOptionsDiv.style.display = show ? 'block' : 'none';
+
+    arrGifs.forEach((gif, index) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.innerHTML = `${gif} <button class="Btn" onclick="deleteGif(${index})">删除</button>`;
+      deleteOptionsDiv.appendChild(itemDiv);
+    });
+  }
+
+  function showDivText() {
+    if (arrGifs.length) {
+      show = !show;
+    }
+    const deleteOptionsDiv = document.getElementById('deleteOptions');
+    const showBtnDiv = document.getElementById('showBtn');
+    showBtnDiv.innerText = show ? '隐藏可删除项' : '显示可删除项';
+    deleteOptionsDiv.style.display = show ? 'block' : 'none';
+    showDeleteOptions()
+  }
+
+  function deleteGif(index) {
+    arrGifs.splice(index, 1);
+    if (arrGifs.length == 0) {
+      show = false;
+      showDeleteOptions();
+    }
+    showDeleteOptions();
+
+    console.log(arrGifs);
+  }
+  function addGifsFromInput() {
+    const inputElement = document.getElementById('gifInput');
+    const inputValue = inputElement.value;
+    if (inputValue) {
+      arrGifs.push(inputValue);
+      console.log(arrGifs);
+      inputElement.value = '';
+      showDeleteOptions()
+    }
+  }
+  function clearGifs() {
+    arrGifs = [];
+    showDeleteOptions();
+    console.log(arrGifs);
+  }
+  //定义一个随机数
+  var random = Math.floor(Math.random() * arrGifs.length);
+  //将随机数赋值给变量
+  var str = arrGifs[random];
+  //将变量赋值给画布
+  cxt.font = ' 50px 微软雅黑';
+  cxt.textAlign = 'center';
+  cxt.textBaseline = 'middle';
+  cxt.fillStyle = 'red';
+  cxt.fillText(str, cvs.width / 2, cvs.height / 2);
+
+  //将绘制的中奖信息另存图片作为画布元素的背景图片
+  var imgUrl = cvs.toDataURL('image/png', 1);
+  cvs.style.backgroundImage = 'url(' + imgUrl + ')';
+
+  cxt.clearRect(0, 0, cvs.width, cvs.height);
+  cxt.fillStyle = '#ddd';
+  cxt.fillRect(0, 0, cvs.width, cvs.height);
+
+  var flage = false;
+  cvs.addEventListener("mousedown", function () {
+    flage = true
+    cxt.globalCompositeOperation = 'destination-out';
+  })
+  cvs.addEventListener("mousemove", function (e) {
+
+
+    if (flage) {
+      // 计算画布偏移量
+      var rect = cvs.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      cxt.beginPath();
+      cxt.fillStyle = 'red'
+      cxt.arc(x, y, 20, 0, Math.PI * 2);
+      cxt.fill();
+    }
+
+  })
+  cvs.addEventListener("mouseup", function () {
+    flage = false
+    cxt.globalCompositeOperation = 'source-over'
+  })
+
+
+
+  // 为按钮添加点击事件
+  document.getElementById('refreshBtn').addEventListener('click', function (e) {
+    if (arrGifs.length) {
+      e.preventDefault();
+      console.log("点击");
+
+      cxt.beginPath()
+      cxt.fillStyle = 'red'
+      // 重新生成随机数
+      window.random = Math.floor(Math.random() * arrGifs.length);
+      window.str = arrGifs[random];
+      // 清除画布
+      cxt.clearRect(0, 0, cvs.width, cvs.height);
+      // 重新绘制文字
+      cxt.fillText(window.str, cvs.width / 2, cvs.height / 2);
+      window.imgUrl = cvs.toDataURL('image/png', 1);
+      window.cvs.style.backgroundImage = 'url(' + imgUrl + ')';
+      cxt.clearRect(0, 0, cvs.width, cvs.height);
+      cxt.fillStyle = '#ddd';
+      cxt.fillRect(0, 0, cvs.width, cvs.height);
+    }
+
+  });
+</script>
+
+</html>

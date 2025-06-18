@@ -1,0 +1,31 @@
+{
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "electron": "3.0.7",
+    "electron-builder": "20.31.2",
+    "electron-packager": "12.2.0"
+  },
+  "name": "election_three",
+  "version": "1.0.0",
+  "main": "main.js",
+  "build": {
+    "appId": "com.itcast-wu.app",
+    "directories": {
+      "app": "./"
+    },
+    "productName": "刮刮乐商店",
+    "win": {
+      "icon": "./favicon.ico"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron-forge start",
+    "packagewin": "electron-packager . heima --platform=win32 --out=./dist --arch=x64 --app-version=1.0.1 --icon=./favicon.ico --overwrite ",
+    "buildwin": "electron-builder --platform=win --arch=x64"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
